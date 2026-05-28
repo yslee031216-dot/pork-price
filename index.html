@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>대산에프앤비(육가공) 경락단가 — 2026년 5월 28일</title>
-<script src="chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0ede8;color:#2c2c2a}
@@ -60,8 +60,8 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0
     </div>
     <div class="metric">
       <div class="lbl">전년 동월 대비</div>
-      <div class="val up">+440<span class="unit">원</span></div>
-      <div class="sub"><span class="up">▲ 440원 (+7.6%)</span></div>
+      <div class="val up">+6,221<span class="unit">원</span></div>
+      <div class="sub"><span class="up">▲ 6,221원 (+0%)</span></div>
     </div>
   </div>
 
@@ -111,7 +111,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-05-28 10:03
+    생성: 2026-05-28 10:49
   </div>
 </div>
 
@@ -157,7 +157,7 @@ new Chart(document.getElementById('mc_this'),{
   data:{
     labels:["25.06","25.07","25.08","25.09","25.10","25.11","25.12","26.01","26.02","26.03","26.04","26.05"],
     datasets:[
-      {label:'2026년',data:[6115,6349,6562,6492,5822,5671,5632,5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
+      {label:'2026년',data:[null,null,null,null,null,null,null,5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
     ]
   },
   options:baseOpt
@@ -168,7 +168,7 @@ new Chart(document.getElementById('mc_cmp'),{
   data:{
     labels:["1월","2월","3월","4월","5월"],
     datasets:[
-      {label:'2025년',data:[5049,4750,5307,5635,5781],backgroundColor:'#378add99',borderRadius:5},
+      {label:'2025년',data:[5049,4750,5307,5635,null],backgroundColor:'#378add99',borderRadius:5},
       {label:'2026년',data:[5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
     ]
   },
