@@ -45,23 +45,23 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0
   <div class="metrics">
     <div class="metric">
       <div class="lbl">전일 경락단가</div>
-      <div class="val">6,221<span class="unit">원</span></div>
+      <div class="val">6,462<span class="unit">원</span></div>
       <div class="sub" style="color:#999">05월 27일 · 탕박 전국</div>
     </div>
     <div class="metric">
       <div class="lbl">전영업일 대비 (05월 26일)</div>
-      <div class="val dn">-180<span class="unit">원</span></div>
-      <div class="sub"><span class="dn">▼ 180원 (-2.8%)</span></div>
+      <div class="val dn">-16<span class="unit">원</span></div>
+      <div class="sub"><span class="dn">▼ 16원 (-0.2%)</span></div>
     </div>
     <div class="metric">
       <div class="lbl">이번 주 평균</div>
-      <div class="val">6,311<span class="unit">원</span></div>
-      <div class="sub"><span class="dn">▼ 160원 (-2.5%)</span> <span style="color:#999">(전주 6,471원)</span></div>
+      <div class="val">6,470<span class="unit">원</span></div>
+      <div class="sub"><span class="dn">▼ 130원 (-2.0%)</span> <span style="color:#999">(전주 6,600원)</span></div>
     </div>
     <div class="metric">
       <div class="lbl">전년 동월 대비</div>
-      <div class="val up">+6,221<span class="unit">원</span></div>
-      <div class="sub"><span class="up">▲ 6,221원 (+0%)</span></div>
+      <div class="val up">+539<span class="unit">원</span></div>
+      <div class="sub"><span class="up">▲ 539원 (+9.1%)</span></div>
     </div>
   </div>
 
@@ -111,7 +111,7 @@ body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-05-28 10:49
+    생성: 2026-05-28 13:58
   </div>
 </div>
 
@@ -132,9 +132,9 @@ new Chart(document.getElementById('wc'),{
   data:{
     labels:["05/13","05/14","05/15","05/18","05/19","05/20","05/21","05/22","05/26","05/27"],
     datasets:[
-      {label:'최근',data:[6404,6480,6366,6582,6541,6451,6457,6323,6401,6221],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
-      {label:'전주',data:[6419,6278,5618,6450,6463,6404,6480,6366,6541,6451],borderColor:'#b4b2a9',pointRadius:3,tension:0.35,fill:false,borderDash:[5,3]},
-      {label:'전년',data:[5777,5817,5761,null,5805,5800,5747,5826,5919,6036],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[2,3],borderWidth:1.5}
+      {label:'최근',data:[6605,6575,6581,6616,6640,6637,6569,6537,6478,6462],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
+      {label:'전주',data:[6371,6466,6535,6569,6617,6605,6575,6581,6640,6637],borderColor:'#b4b2a9',pointRadius:3,tension:0.35,fill:false,borderDash:[5,3]},
+      {label:'전년',data:[5923,5941,5901,null,5960,5972,5974,5971,6106,6039],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[2,3],borderWidth:1.5}
     ]
   },
   options:baseOpt
@@ -145,8 +145,8 @@ new Chart(document.getElementById('wkc'),{
   data:{
     labels:["4/6주","4/13주","4/20주","4/27주","5/4주","5/11주","5/18주","5/25주"],
     datasets:[
-      {label:'2026년',data:[null,null,null,6447,6164,6433,6471,6401],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
-      {label:'2025년',data:[null,null,null,5749,5750,5780,5794,5919],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[3,3],borderWidth:1.5}
+      {label:'2026년',data:[6020,6380,6637,6778,6490,6589,6600,6478],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
+      {label:'2025년',data:[5692,5729,5971,5974,5656,5880,5969,6106],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[3,3],borderWidth:1.5}
     ]
   },
   options:baseOpt
@@ -157,7 +157,7 @@ new Chart(document.getElementById('mc_this'),{
   data:{
     labels:["25.06","25.07","25.08","25.09","25.10","25.11","25.12","26.01","26.02","26.03","26.04","26.05"],
     datasets:[
-      {label:'2026년',data:[null,null,null,null,null,null,null,5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
+      {label:'2026년',data:[6488,6729,7060,7313,6640,6009,6037,5781,5945,5645,6355,6555],backgroundColor:'#0f7a5fcc',borderRadius:5}
     ]
   },
   options:baseOpt
@@ -168,8 +168,8 @@ new Chart(document.getElementById('mc_cmp'),{
   data:{
     labels:["1월","2월","3월","4월","5월"],
     datasets:[
-      {label:'2025년',data:[5049,4750,5307,5635,null],backgroundColor:'#378add99',borderRadius:5},
-      {label:'2026년',data:[5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
+      {label:'2025년',data:[5479,5028,5365,5766,5923],backgroundColor:'#378add99',borderRadius:5},
+      {label:'2026년',data:[5781,5945,5645,6355,6555],backgroundColor:'#0f7a5fcc',borderRadius:5}
     ]
   },
   options:baseOpt
