@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>대산에프앤비(육가공) 경락단가 — 2026년 5월 28일</title>
+<script src="chart.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#f0ede8;color:#2c2c2a}
+.wrap{max-width:780px;margin:0 auto;padding:28px 16px 60px}
+.header{background:linear-gradient(135deg,#0a5c46,#0f7a5f);border-radius:16px;padding:28px 32px;margin-bottom:20px;position:relative;overflow:hidden}
+.header::after{content:'🐷';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.12}
+.header .co{font-size:13px;color:rgba(255,255,255,.6);margin-bottom:6px}
+.header h1{font-size:22px;font-weight:600;color:#fff;margin-bottom:5px}
+.header .dt{font-size:13px;color:rgba(255,255,255,.55)}
+.header .src{font-size:11px;color:rgba(255,255,255,.4);margin-top:4px}
+.metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+@media(min-width:520px){.metrics{grid-template-columns:repeat(4,1fr)}}
+.metric{background:#fff;border-radius:12px;padding:18px 16px;border:.5px solid #d3d1c7}
+.metric .lbl{font-size:12px;color:#999;margin-bottom:8px}
+.metric .val{font-size:22px;font-weight:600;color:#1a1a18;letter-spacing:-.5px;line-height:1}
+.metric .unit{font-size:13px;font-weight:400}
+.metric .sub{font-size:12px;margin-top:6px}
+.up{color:#e24b4a}.dn{color:#378add}.eq{color:#999}
+.card{background:#fff;border-radius:14px;border:.5px solid #d3d1c7;padding:22px;margin-bottom:14px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.card-head h2{font-size:14px;font-weight:600;color:#444}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:#888}
+.leg{display:flex;align-items:center;gap:5px}
+.dot{width:10px;height:10px;border-radius:2px}
+.chart-wrap{position:relative;width:100%;height:240px}
+.footer{text-align:center;font-size:12px;color:#aaa;margin-top:32px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <div class="co">대산에프앤비(육가공)</div>
+    <h1>🐷 돼지 경락단가 일일 리포트</h1>
+    <div class="dt">2026년 5월 28일 생성 · 05월 27일 기준</div>
+    <div class="src">출처: 축산물품질평가원 · 탕박 등외제외 전국 평균 (ekapepia.com 동일 기준)</div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric">
+      <div class="lbl">전일 경락단가</div>
+      <div class="val">6,221<span class="unit">원</span></div>
+      <div class="sub" style="color:#999">05월 27일 · 탕박 전국</div>
+    </div>
+    <div class="metric">
+      <div class="lbl">전영업일 대비 (05월 26일)</div>
+      <div class="val dn">-180<span class="unit">원</span></div>
+      <div class="sub"><span class="dn">▼ 180원 (-2.8%)</span></div>
+    </div>
+    <div class="metric">
+      <div class="lbl">이번 주 평균</div>
+      <div class="val">6,311<span class="unit">원</span></div>
+      <div class="sub"><span class="dn">▼ 160원 (-2.5%)</span> <span style="color:#999">(전주 6,471원)</span></div>
+    </div>
+    <div class="metric">
+      <div class="lbl">전년 동월 대비</div>
+      <div class="val up">+440<span class="unit">원</span></div>
+      <div class="sub"><span class="up">▲ 440원 (+7.6%)</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>주간 경락단가 추이 (원/kg)</h2>
+      <div class="legend">
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>최근</span>
+        <span class="leg"><span class="dot" style="background:#b4b2a9"></span>전주</span>
+        <span class="leg"><span class="dot" style="background:#378add"></span>전년 동기</span>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="wc"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>주별 경락단가 추이 — 최근 8주 (원/kg)</h2>
+      <div class="legend">
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>2026년</span>
+        <span class="leg"><span class="dot" style="background:#378add"></span>2025년</span>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="wkc"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>월별 경락단가 추이 — 올해 (원/kg)</h2>
+      <div class="legend">
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>2026년</span>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="mc_this"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <h2>전년 대비 경락단가 추이 (원/kg)</h2>
+      <div class="legend">
+        <span class="leg"><span class="dot" style="background:#378add"></span>2025년</span>
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>2026년</span>
+      </div>
+    </div>
+    <div class="chart-wrap"><canvas id="mc_cmp"></canvas></div>
+  </div>
+
+  <div class="footer">
+    데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
+    생성: 2026-05-28 10:03
+  </div>
+</div>
+
+<script>
+const baseOpt = {
+  responsive:true, maintainAspectRatio:false,
+  plugins:{legend:{display:false}},
+  layout:{padding:{left:8,right:8}},
+  scales:{
+    x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#999',font:{size:11}},offset:true},
+    y:{grid:{color:'rgba(0,0,0,0.04)'},suggestedMin:4000,suggestedMax:8000,
+       ticks:{color:'#999',font:{size:11},callback:v=>v?v.toLocaleString():''}}
+  }
+};
+
+new Chart(document.getElementById('wc'),{
+  type:'line',
+  data:{
+    labels:["05/13","05/14","05/15","05/18","05/19","05/20","05/21","05/22","05/26","05/27"],
+    datasets:[
+      {label:'최근',data:[6404,6480,6366,6582,6541,6451,6457,6323,6401,6221],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
+      {label:'전주',data:[6419,6278,5618,6450,6463,6404,6480,6366,6541,6451],borderColor:'#b4b2a9',pointRadius:3,tension:0.35,fill:false,borderDash:[5,3]},
+      {label:'전년',data:[5777,5817,5761,null,5805,5800,5747,5826,5919,6036],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[2,3],borderWidth:1.5}
+    ]
+  },
+  options:baseOpt
+});
+
+new Chart(document.getElementById('wkc'),{
+  type:'line',
+  data:{
+    labels:["4/6주","4/13주","4/20주","4/27주","5/4주","5/11주","5/18주","5/25주"],
+    datasets:[
+      {label:'2026년',data:[null,null,null,6447,6164,6433,6471,6401],borderColor:'#0f7a5f',backgroundColor:'#0f7a5f18',pointRadius:5,pointBackgroundColor:'#0f7a5f',tension:0.35,fill:true},
+      {label:'2025년',data:[null,null,null,5749,5750,5780,5794,5919],borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[3,3],borderWidth:1.5}
+    ]
+  },
+  options:baseOpt
+});
+
+new Chart(document.getElementById('mc_this'),{
+  type:'bar',
+  data:{
+    labels:["25.06","25.07","25.08","25.09","25.10","25.11","25.12","26.01","26.02","26.03","26.04","26.05"],
+    datasets:[
+      {label:'2026년',data:[6115,6349,6562,6492,5822,5671,5632,5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
+    ]
+  },
+  options:baseOpt
+});
+
+new Chart(document.getElementById('mc_cmp'),{
+  type:'bar',
+  data:{
+    labels:["1월","2월","3월","4월","5월"],
+    datasets:[
+      {label:'2025년',data:[5049,4750,5307,5635,5781],backgroundColor:'#378add99',borderRadius:5},
+      {label:'2026년',data:[5179,5254,5224,6144,6362],backgroundColor:'#0f7a5fcc',borderRadius:5}
+    ]
+  },
+  options:baseOpt
+});
+</script>
+</body>
+</html>
