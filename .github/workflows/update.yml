@@ -2,15 +2,20 @@ name: 경락단가 자동 업데이트
 
 on:
   schedule:
-    - cron: '0 1 * * 1-5'
+    - cron: '0 21 * * 1-5'
   workflow_dispatch:
 
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: 체크아웃
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Python 설치
         uses: actions/setup-python@v5
@@ -26,5 +31,4 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add price_data.csv index.html
           git diff --staged --quiet || git commit -m "경락단가 업데이트 $(date +'%Y-%m-%d')"
-          git push
-          
+          git push origin main
