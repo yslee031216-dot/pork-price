@@ -111,8 +111,8 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
     <div class="card-head">
       <h2>전년 대비 경락단가 추이 (원/kg)</h2>
       <div class="legend">
-        <span class="leg"><span class="dot" style="background:#378add"></span>2025년</span>
-        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>2026년</span>
+        <span class="leg"><span class="dot" style="background:#378add"></span>2025년 <b style="color:#378add;margin-left:4px">5,764원</b></span>
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>2026년 <b style="color:#0f7a5f;margin-left:4px">5,751원</b></span>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="mc_cmp"></canvas></div>
@@ -148,7 +148,7 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-06-10 08:49
+    생성: 2026-06-10 16:13
   </div>
 </div>
 
@@ -215,14 +215,14 @@ new Chart(document.getElementById('mc_this'), {
 });
 
 // 전년 대비
-const cmpThis = [5179,5254,5224,6144,6319,6388];
-const cmpLast = [5049,4750,5307,5635,5781,6115];
-const cmpDiff = [130,504,-83,509,538,273];
+const cmpThis = [5179,5254,5224,6144,6319,6388,null,null,null,null,null,null];
+const cmpLast = [5049,4750,5307,5635,5781,6115,6349,6562,6492,5822,5671,5632];
+const cmpDiff = [130,504,-83,509,538,273,null,null,null,null,null,null];
 
 new Chart(document.getElementById('mc_cmp'), {
   type: 'bar',
   data: {
-    labels: ["1월","2월","3월","4월","5월","6월"],
+    labels: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
     datasets: [
       { label: '2025년', data: cmpLast, backgroundColor: '#378add99', borderRadius: 5 },
       { label: '2026년', data: cmpThis, backgroundColor: '#0f7a5fcc', borderRadius: 5 }
