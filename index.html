@@ -169,7 +169,7 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-06-10 16:27
+    생성: 2026-06-10 16:31
   </div>
 </div>
 
@@ -247,7 +247,9 @@ const cmpDiff = [130,504,-83,509,538,273,null,null,null,null,null,null];
     const ly=cmpLast[i];
     const ty=cmpThis[i];
     const diff=(ty&&ly)?ty-ly:null;
-    const diffStr=diff===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">▲ ${Math.abs(diff).toLocaleString()}원</span>`:diff<0?`<span style="color:#378add">▼ ${Math.abs(diff).toLocaleString()}원</span>`:'<span style="color:#999">변동없음</span>';
+    const pct=(diff!==null&&ly)?Math.round(Math.abs(diff)/ly*1000)/10:null;
+    const pctStr=pct!==null?` (${diff>=0?'+':'-'}${pct}%)`:'';
+    const diffStr=diff===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">▲ ${Math.abs(diff).toLocaleString()}원${pctStr}</span>`:diff<0?`<span style="color:#378add">▼ ${Math.abs(diff).toLocaleString()}원${pctStr}</span>`:'<span style="color:#999">변동없음</span>';
     const lyStr=ly?ly.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
     const tyStr=ty?ty.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
     rows+=`<tr style="border-bottom:.5px solid #f0ede8"><td style="padding:8px 12px;font-weight:500">${labels[i]}</td><td style="padding:8px 12px;text-align:right;color:#378add">${lyStr}</td><td style="padding:8px 12px;text-align:right;color:#0f7a5f">${tyStr}</td><td style="padding:8px 12px;text-align:right">${diffStr}</td></tr>`;
