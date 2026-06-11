@@ -169,7 +169,7 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-06-11 09:18
+    생성: 2026-06-11 09:25
   </div>
 </div>
 
@@ -232,7 +232,29 @@ new Chart(document.getElementById('mc_this'), {
     labels: ["25.07","25.08","25.09","25.10","25.11","25.12","26.01","26.02","26.03","26.04","26.05","26.06"],
     datasets: [{ label: '2026년', data: [6348,6562,6492,5821,5671,5632,5179,5253,5223,6144,6318,6408], backgroundColor: '#0f7a5fcc', borderRadius: 5 }]
   },
-  options: baseOpt
+  options: {
+    ...baseOpt,
+    animation: {
+      onComplete: function() {
+        const chart = this;
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.font = 'bold 10px Apple SD Gothic Neo,Malgun Gothic,sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        const meta = chart.getDatasetMeta(0);
+        meta.data.forEach((bar, j) => {
+          const val = chart.data.datasets[0].data[j];
+          if (!val) return;
+          const barHeight = bar.base - bar.y;
+          if (barHeight < 16) return;
+          ctx.fillStyle = 'rgba(255,255,255,0.9)';
+          ctx.fillText(val.toLocaleString(), bar.x, bar.y + barHeight / 2);
+        });
+        ctx.restore();
+      }
+    }
+  }
 });
 
 // 전년 대비
