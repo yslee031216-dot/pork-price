@@ -105,6 +105,19 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
       </div>
     </div>
     <div class="chart-wrap"><canvas id="mc_this"></canvas></div>
+    <div style="margin-top:20px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1.5px solid #d3d1c7;background:#f8f7f5">
+            <th style="text-align:left;padding:8px 12px;color:#666;font-weight:600">월</th>
+            <th style="text-align:right;padding:8px 12px;color:#0f7a5f;font-weight:600">평균단가</th>
+            <th style="text-align:right;padding:8px 12px;color:#666;font-weight:600">전월 대비</th>
+            <th style="text-align:right;padding:8px 12px;color:#666;font-weight:600">증감률</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTableBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -169,7 +182,7 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-06-11 09:28
+    생성: 2026-06-11 09:48
   </div>
 </div>
 
@@ -226,6 +239,24 @@ new Chart(document.getElementById('wkc'), {
 });
 
 // 월별 올해
+// 월별 추이 표 채우기
+(function(){
+  const labels=["25.07","25.08","25.09","25.10","25.11","25.12","26.01","26.02","26.03","26.04","26.05","26.06"];
+  const data=[6348,6562,6492,5821,5671,5632,5179,5253,5223,6144,6318,6408];
+  let rows='';
+  for(let i=0;i<data.length;i++){
+    const val=data[i];
+    const prev=i>0?data[i-1]:null;
+    const diff=(val&&prev)?val-prev:null;
+    const pct=(diff!==null&&prev)?Math.round(Math.abs(diff)/prev*1000)/10:null;
+    const valStr=val?val.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
+    const diffStr=diff===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">▲ ${Math.abs(diff).toLocaleString()}원</span>`:diff<0?`<span style="color:#378add">▼ ${Math.abs(diff).toLocaleString()}원</span>`:'<span style="color:#999">변동없음</span>';
+    const pctStr=pct===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">+${pct}%</span>`:diff<0?`<span style="color:#378add">-${pct}%</span>`:'<span style="color:#999">0%</span>';
+    rows+=`<tr style="border-bottom:.5px solid #f0ede8"><td style="padding:8px 12px;font-weight:500">${labels[i]}</td><td style="padding:8px 12px;text-align:right;color:#0f7a5f;font-weight:500">${valStr}</td><td style="padding:8px 12px;text-align:right">${diffStr}</td><td style="padding:8px 12px;text-align:right">${pctStr}</td></tr>`;
+  }
+  document.getElementById('monthlyTableBody').innerHTML=rows;
+})();
+
 new Chart(document.getElementById('mc_this'), {
   type: 'bar',
   data: {
