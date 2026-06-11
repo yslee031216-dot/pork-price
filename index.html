@@ -169,7 +169,7 @@ input[type=date]{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;fo
 
   <div class="footer">
     데이터 출처: 축산물품질평가원 공공데이터 API · 탕박 등외제외 전국 평균<br>
-    생성: 2026-06-11 09:25
+    생성: 2026-06-11 09:28
   </div>
 </div>
 
@@ -234,6 +234,7 @@ new Chart(document.getElementById('mc_this'), {
   },
   options: {
     ...baseOpt,
+    layout: {padding: {left:8,right:8,top:20}},
     animation: {
       onComplete: function() {
         const chart = this;
@@ -246,10 +247,8 @@ new Chart(document.getElementById('mc_this'), {
         meta.data.forEach((bar, j) => {
           const val = chart.data.datasets[0].data[j];
           if (!val) return;
-          const barHeight = bar.base - bar.y;
-          if (barHeight < 16) return;
-          ctx.fillStyle = 'rgba(255,255,255,0.9)';
-          ctx.fillText(val.toLocaleString(), bar.x, bar.y + barHeight / 2);
+          ctx.fillStyle = '#0f7a5f';
+          ctx.fillText(val.toLocaleString(), bar.x, bar.y - 6);
         });
         ctx.restore();
       }
