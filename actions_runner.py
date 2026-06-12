@@ -44,7 +44,7 @@ def is_workday(dt, holidays):
 
 def avg_of(lst):
     v = [x for x in lst if x and x > 0]
-    return round(sum(v) / len(v)) if v else 0
+    return int(sum(v) / len(v)) if v else 0
 
 def load_holidays():
     holidays = set(HOLIDAYS_FALLBACK)
@@ -281,12 +281,20 @@ def build_stats(data, today, holidays):
         mly_list.append(avg_of([v for k, v in last_year.items() if k.startswith(ly_ym)]) or None)
 
     cmp_labels, cmp_this, cmp_last = [], [], []
-    for m in range(1, today.month + 1):
+    for m in range(1, 13):  # 1월~12월 전체
         ym    = f'{today.year}{m:02d}'
         ly_ym = f'{today.year-1}{m:02d}'
         cmp_labels.append(f'{m}월')
-        cmp_this.append(avg_of([v for k, v in this_year.items() if k.startswith(ym)]) or None)
+        # 올해: 현재월 이후는 None (공란)
+        if m <= today.month:
+            cmp_this.append(avg_of([v for k, v in this_year.items() if k.startswith(ym)]) or None)
+        else:
+            cmp_this.append(None)
         cmp_last.append(avg_of([v for k, v in last_year.items() if k.startswith(ly_ym)]) or None)
+
+    # 연간 평균 계산
+    this_year_avg = avg_of([v for v in cmp_this if v])
+    last_year_avg = avg_of([v for v in cmp_last if v])
 
     return dict(
         dd=f'{dd[4:6]}월 {dd[6:8]}일',
@@ -299,6 +307,7 @@ def build_stats(data, today, holidays):
         wk_labels=wk_labels, wk_avg=wk_avg, wk_ly_avg=wk_ly_avg,
         ml=ml, mt=mt, mly=mly_list,
         cmp_labels=cmp_labels, cmp_this=cmp_this, cmp_last=cmp_last,
+        this_year_avg=this_year_avg, last_year_avg=last_year_avg,
         this_year=today.year, last_year=today.year - 1,
     )
 
@@ -456,17 +465,51 @@ input[type=date]{{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;f
       </div>
     </div>
     <div class="chart-wrap"><canvas id="mc_this"></canvas></div>
+    <div style="margin-top:20px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1.5px solid #d3d1c7;background:#f8f7f5">
+            <th style="text-align:left;padding:8px 12px;color:#666;font-weight:600">월</th>
+            <th style="text-align:right;padding:8px 12px;color:#0f7a5f;font-weight:600">평균단가</th>
+            <th style="text-align:right;padding:8px 12px;color:#666;font-weight:600">전월 대비</th>
+            <th style="text-align:right;padding:8px 12px;color:#666;font-weight:600">증감률</th>
+          </tr>
+        </thead>
+        <tbody id="monthlyTableBody"></tbody>
+      </table>
+    </div>
   </div>
 
   <div class="card">
     <div class="card-head">
       <h2>전년 대비 경락단가 추이 (원/kg)</h2>
       <div class="legend">
-        <span class="leg"><span class="dot" style="background:#378add"></span>{s['last_year']}년</span>
-        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>{s['this_year']}년</span>
+        <span class="leg"><span class="dot" style="background:#378add"></span>{s['last_year']}년 <b style="color:#378add;margin-left:4px">{f"{s['last_year_avg']:,}원" if s['last_year_avg'] else '-'}</b></span>
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>{s['this_year']}년 <b style="color:#0f7a5f;margin-left:4px">{f"{s['this_year_avg']:,}원" if s['this_year_avg'] else '-'}</b></span>
       </div>
     </div>
     <div class="chart-wrap"><canvas id="mc_cmp"></canvas></div>
+    <div style="margin-top:20px">
+      <table id="cmpTable" style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1.5px solid #d3d1c7;background:#f8f7f5">
+            <th style="text-align:left;padding:8px 12px;color:#666;font-weight:600">월</th>
+            <th style="text-align:right;padding:8px 12px;color:#378add;font-weight:600">{s['last_year']}년</th>
+            <th style="text-align:right;padding:8px 12px;color:#0f7a5f;font-weight:600">{s['this_year']}년</th>
+            <th style="text-align:right;padding:8px 12px;color:#666;font-weight:600">전년 대비</th>
+          </tr>
+        </thead>
+        <tbody id="cmpTableBody"></tbody>
+        <tfoot>
+          <tr style="border-top:1.5px solid #d3d1c7;background:#f8f7f5;font-weight:600">
+            <td style="padding:8px 12px">연평균</td>
+            <td style="padding:8px 12px;text-align:right;color:#378add">{f"{s['last_year_avg']:,}원" if s['last_year_avg'] else '—'}</td>
+            <td style="padding:8px 12px;text-align:right;color:#0f7a5f">{f"{s['this_year_avg']:,}원" if s['this_year_avg'] else '—'}</td>
+            <td style="padding:8px 12px;text-align:right">{"<span style='color:#e24b4a'>▲ " + f"{s['this_year_avg']-s['last_year_avg']:,}원</span>" if s['this_year_avg'] and s['last_year_avg'] and s['this_year_avg']>s['last_year_avg'] else "<span style='color:#378add'>▼ " + f"{abs(s['this_year_avg']-s['last_year_avg']):,}원</span>" if s['this_year_avg'] and s['last_year_avg'] else '—'}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
 
   <div class="card">
@@ -531,23 +574,122 @@ new Chart(document.getElementById('wkc'),{{type:'line',data:{{
     {{label:'{s['last_year']}년',data:{jn(s['wk_ly_avg'])},borderColor:'#378add',pointRadius:3,tension:0.35,fill:false,borderDash:[3,3],borderWidth:1.5}}
   ]}},options:baseOpt}});
 
-new Chart(document.getElementById('mc_this'),{{type:'bar',data:{{
-  labels:{js(s['ml'])},
-  datasets:[{{label:'{s['this_year']}년',data:{jn(s['mt'])},backgroundColor:'#0f7a5fcc',borderRadius:5}}]
-  }},options:baseOpt}});
+// 월별 추이 표 채우기
+(function(){{
+  const labels={js(s['ml'])};
+  const data={jn(s['mt'])};
+  let rows='';
+  for(let i=0;i<data.length;i++){{
+    const val=data[i];
+    const prev=i>0?data[i-1]:null;
+    const diff=(val&&prev)?val-prev:null;
+    const pct=(diff!==null&&prev)?Math.round(Math.abs(diff)/prev*1000)/10:null;
+    const valStr=val?val.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
+    const diffStr=diff===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">▲ ${{Math.abs(diff).toLocaleString()}}원</span>`:diff<0?`<span style="color:#378add">▼ ${{Math.abs(diff).toLocaleString()}}원</span>`:'<span style="color:#999">변동없음</span>';
+    const pctStr=pct===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">+${{pct}}%</span>`:diff<0?`<span style="color:#378add">-${{pct}}%</span>`:'<span style="color:#999">0%</span>';
+    rows+=`<tr style="border-bottom:.5px solid #f0ede8"><td style="padding:8px 12px;font-weight:500">${{labels[i]}}</td><td style="padding:8px 12px;text-align:right;color:#0f7a5f;font-weight:500">${{valStr}}</td><td style="padding:8px 12px;text-align:right">${{diffStr}}</td><td style="padding:8px 12px;text-align:right">${{pctStr}}</td></tr>`;
+  }}
+  document.getElementById('monthlyTableBody').innerHTML=rows;
+}})();
+
+new Chart(document.getElementById('mc_this'),{{
+  type:'bar',
+  data:{{
+    labels:{js(s['ml'])},
+    datasets:[{{label:'{s['this_year']}년',data:{jn(s['mt'])},backgroundColor:'#0f7a5fcc',borderRadius:5}}]
+  }},
+  options:{{
+    ...baseOpt,
+    animation:{{
+      onComplete: function(){{
+        const chart=this;
+        const ctx=chart.ctx;
+        ctx.save();
+        ctx.font='bold 10px Apple SD Gothic Neo,Malgun Gothic,sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        const meta=chart.getDatasetMeta(0);
+        meta.data.forEach((bar,j)=>{{
+          const val=chart.data.datasets[0].data[j];
+          if(!val)return;
+          ctx.fillStyle='#0f7a5f';
+          ctx.fillText(val.toLocaleString(),bar.x,bar.y-6);
+        }});
+        ctx.restore();
+      }}
+    }}
+  }}
+}});
 
 const cmpThis={jn(s['cmp_this'])};
 const cmpLast={jn(s['cmp_last'])};
 const cmpDiff={jn(cmp_diff)};
-new Chart(document.getElementById('mc_cmp'),{{type:'bar',data:{{
-  labels:{js(s['cmp_labels'])},
-  datasets:[
-    {{label:'{s['last_year']}년',data:cmpLast,backgroundColor:'#378add99',borderRadius:5}},
-    {{label:'{s['this_year']}년',data:cmpThis,backgroundColor:'#0f7a5fcc',borderRadius:5}}
-  ]}},options:{{...baseOpt,plugins:{{...baseOpt.plugins,tooltip:{{callbacks:{{
-    label:ctx=>ctx.parsed.y?ctx.parsed.y.toLocaleString()+'원/kg':'',
-    afterBody:items=>{{const i=items[0].dataIndex;const d=cmpDiff[i];if(d===null)return'';return['전년 대비: '+(d>=0?'+':'')+d.toLocaleString()+'원'];}}
-  }}}}}}}}}});
+// 전년대비 표 채우기
+(function(){{
+  const labels=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  let rows='';
+  for(let i=0;i<12;i++){{
+    const ly=cmpLast[i];
+    const ty=cmpThis[i];
+    const diff=(ty&&ly)?ty-ly:null;
+    const pct=(diff!==null&&ly)?Math.round(Math.abs(diff)/ly*1000)/10:null;
+    const pctStr=pct!==null?` (${{diff>=0?'+':'-'}}${{pct}}%)`:'';
+    const diffStr=diff===null?'<span style="color:#ccc">—</span>':diff>0?`<span style="color:#e24b4a">▲ ${{Math.abs(diff).toLocaleString()}}원${{pctStr}}</span>`:diff<0?`<span style="color:#378add">▼ ${{Math.abs(diff).toLocaleString()}}원${{pctStr}}</span>`:'<span style="color:#999">변동없음</span>';
+    const lyStr=ly?ly.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
+    const tyStr=ty?ty.toLocaleString()+'원':'<span style="color:#ccc">—</span>';
+    rows+=`<tr style="border-bottom:.5px solid #f0ede8"><td style="padding:8px 12px;font-weight:500">${{labels[i]}}</td><td style="padding:8px 12px;text-align:right;color:#378add">${{lyStr}}</td><td style="padding:8px 12px;text-align:right;color:#0f7a5f">${{tyStr}}</td><td style="padding:8px 12px;text-align:right">${{diffStr}}</td></tr>`;
+  }}
+  document.getElementById('cmpTableBody').innerHTML=rows;
+}})();
+new Chart(document.getElementById('mc_cmp'),{{
+  type:'bar',
+  data:{{
+    labels:{js(s['cmp_labels'])},
+    datasets:[
+      {{label:'{s['last_year']}년',data:cmpLast,backgroundColor:'#378add99',borderRadius:5}},
+      {{label:'{s['this_year']}년',data:cmpThis,backgroundColor:'#0f7a5fcc',borderRadius:5}}
+    ]
+  }},
+  options:{{
+    ...baseOpt,
+    plugins:{{
+      ...baseOpt.plugins,
+      tooltip:{{
+        callbacks:{{
+          label:ctx=>ctx.parsed.y?ctx.parsed.y.toLocaleString()+'원/kg':'',
+          afterBody:items=>{{
+            const i=items[0].dataIndex;
+            const d=cmpDiff[i];
+            if(d===null)return'';
+            return['전년 대비: '+(d>=0?'+':'')+d.toLocaleString()+'원'];
+          }}
+        }}
+      }}
+    }},
+    animation:{{
+      onComplete: function(){{
+        const chart=this;
+        const ctx=chart.ctx;
+        ctx.save();
+        ctx.font='bold 10px Apple SD Gothic Neo,Malgun Gothic,sans-serif';
+        ctx.textAlign='center';
+        ctx.textBaseline='middle';
+        chart.data.datasets.forEach((dataset,i)=>{{
+          const meta=chart.getDatasetMeta(i);
+          meta.data.forEach((bar,j)=>{{
+            const val=dataset.data[j];
+            if(!val)return;
+            const barHeight=bar.base-bar.y;
+            if(barHeight<16)return;
+            ctx.fillStyle='rgba(255,255,255,0.9)';
+            ctx.fillText(val.toLocaleString(),bar.x,bar.y+barHeight/2);
+          }});
+        }});
+        ctx.restore();
+      }}
+    }}
+  }}
+}});
 
 function queryRange(){{
   const s=document.getElementById('startDate').value.replace(/-/g,'');
