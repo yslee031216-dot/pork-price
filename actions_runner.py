@@ -133,7 +133,7 @@ def collect(today, holidays):
     cached    = load_csv()
     print(f'캐시: {len(cached)}건')
 
-    start_date = datetime(today.year - 1, 1, 1)
+    start_date = datetime(today.year - 3, 1, 1)  # 2023년부터
     needed = []
     cur = start_date
     while cur <= yesterday:
@@ -157,11 +157,37 @@ def collect(today, holidays):
 
     return cached
 
+def _build_yearly_chart(data, today):
+    """연도별 월평균 계산 (1월~12월)"""
+    years = [today.year - 3, today.year - 2, today.year - 1, today.year]
+    result = {}
+    for y in years:
+        monthly = []
+        for m in range(1, 13):
+            ym = f'{y}{m:02d}'
+            prices = [v['price'] if isinstance(v, dict) else v
+                      for k, v in data.items() if k.startswith(ym)]
+            avg = int(sum(prices) / len(prices)) if prices else None
+            # 올해 미래 월은 None
+            if y == today.year and m > today.month:
+                avg = None
+            monthly.append(avg)
+        result[str(y)] = monthly
+    # 전체 평균 (각 월별 평균)
+    all_avg = []
+    for m_idx in range(12):
+        vals = [result[str(y)][m_idx] for y in years if result[str(y)][m_idx]]
+        all_avg.append(int(sum(vals)/len(vals)) if vals else None)
+    result['avg'] = all_avg
+    return result
+
 def build_stats(data, today, holidays):
     yesterday = today - timedelta(days=1)
 
     this_year_str = str(today.year)
     last_year_str = str(today.year - 1)
+    year_2024_str = str(today.year - 2)
+    year_2023_str = str(today.year - 3)
 
     def get_price(d): return d['price'] if isinstance(d, dict) else d
     def get_farmer(d):
@@ -173,6 +199,8 @@ def build_stats(data, today, holidays):
 
     this_year     = {k: get_price(v) for k, v in data.items() if k.startswith(this_year_str)}
     last_year     = {k: get_price(v) for k, v in data.items() if k.startswith(last_year_str)}
+    year_2024     = {k: get_price(v) for k, v in data.items() if k.startswith(year_2024_str)}
+    year_2023     = {k: get_price(v) for k, v in data.items() if k.startswith(year_2023_str)}
     all_data      = {**last_year, **this_year}
     this_year_raw = {k: v for k, v in data.items() if k.startswith(this_year_str)}
 
@@ -308,6 +336,7 @@ def build_stats(data, today, holidays):
         ml=ml, mt=mt, mly=mly_list,
         cmp_labels=cmp_labels, cmp_this=cmp_this, cmp_last=cmp_last,
         this_year_avg=this_year_avg, last_year_avg=last_year_avg,
+        yearly_chart=_build_yearly_chart(data, today),
         this_year=today.year, last_year=today.year - 1,
     )
 
@@ -340,6 +369,8 @@ def make_html(s, today, data):
         return str(p) if p is not None else 'null'
 
     price_js  = '{' + ','.join(f'"{k}":{_pv(v)}' for k, v in sorted(data.items())) + '}'
+    import json as _json
+    yearly_chart_js = _json.dumps(s['yearly_chart'])
     farmer_js = '{' + ','.join(f'"{k}":{_fv(v)}' for k, v in sorted(data.items())) + '}'
     dealer_js = '{' + ','.join(f'"{k}":{_dv(v)}' for k, v in sorted(data.items())) + '}'
 
@@ -436,6 +467,32 @@ input[type=date]{{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;f
   </div>
 
   <div class="card">
+    <div class="card-head"><h2>📅 날짜별 단가 조회</h2></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+      <input type="date" id="startDate">
+      <span style="color:#999;font-size:13px">~</span>
+      <input type="date" id="endDate">
+      <button class="btn-primary" onclick="queryRange()">조회</button>
+      <button class="btn-secondary" onclick="clearQuery()">초기화</button>
+    </div>
+    <div id="queryResult" style="display:none">
+      <div id="queryAvg" style="background:#f0ede8;border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:14px;font-weight:500"></div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="border-bottom:1.5px solid #d3d1c7">
+            <th style="text-align:left;padding:8px 10px;color:#999;font-weight:500">날짜</th>
+            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">전국평균</th>
+            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">농가단가</th>
+            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">거래처단가</th>
+            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">전일 대비</th>
+          </tr>
+        </thead>
+        <tbody id="queryTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
     <div class="card-head">
       <h2>주간 경락단가 추이 (원/kg)</h2>
       <div class="legend">
@@ -512,30 +569,21 @@ input[type=date]{{padding:7px 10px;border:.5px solid #d3d1c7;border-radius:8px;f
     </div>
   </div>
 
+
+
+
   <div class="card">
-    <div class="card-head"><h2>📅 날짜별 단가 조회</h2></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
-      <input type="date" id="startDate">
-      <span style="color:#999;font-size:13px">~</span>
-      <input type="date" id="endDate">
-      <button class="btn-primary" onclick="queryRange()">조회</button>
-      <button class="btn-secondary" onclick="clearQuery()">초기화</button>
+    <div class="card-head">
+      <h2>연도별 경락단가 추이 (원/kg)</h2>
+      <div class="legend">
+        <span class="leg"><span class="dot" style="background:#d4a017"></span>{today.year-3}년</span>
+        <span class="leg"><span class="dot" style="background:#888"></span>{today.year-2}년</span>
+        <span class="leg"><span class="dot" style="background:#378add"></span>{today.year-1}년</span>
+        <span class="leg"><span class="dot" style="background:#0f7a5f"></span>{today.year}년</span>
+        <span class="leg"><span class="dot" style="background:#aaa;border:1px dashed #666"></span>평균</span>
+      </div>
     </div>
-    <div id="queryResult" style="display:none">
-      <div id="queryAvg" style="background:#f0ede8;border-radius:10px;padding:14px 18px;margin-bottom:12px;font-size:14px;font-weight:500"></div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="border-bottom:1.5px solid #d3d1c7">
-            <th style="text-align:left;padding:8px 10px;color:#999;font-weight:500">날짜</th>
-            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">전국평균</th>
-            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">농가단가</th>
-            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">거래처단가</th>
-            <th style="text-align:right;padding:8px 10px;color:#999;font-weight:500">전일 대비</th>
-          </tr>
-        </thead>
-        <tbody id="queryTable"></tbody>
-      </table>
-    </div>
+    <div class="chart-wrap" style="height:280px"><canvas id="yearly_chart"></canvas></div>
   </div>
 
   <div class="footer">
@@ -736,6 +784,56 @@ function queryRange(){{
   }}
   document.getElementById('queryResult').style.display='block';
 }}
+
+
+// 연도별 추이 차트
+(function(){{
+  const yc = {yearly_chart_js};
+  const months = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const colors = {{
+    '{s['this_year']-3}': '#d4a017',
+    '{s['this_year']-2}': '#888888',
+    '{s['this_year']-1}': '#378add',
+    '{s['this_year']}':   '#0f7a5f',
+    'avg': '#aaaaaa'
+  }};
+  const dashes = {{
+    '{s['this_year']-3}': [],
+    '{s['this_year']-2}': [],
+    '{s['this_year']-1}': [],
+    '{s['this_year']}':   [],
+    'avg': [5,3]
+  }};
+  const datasets = Object.keys(yc).map(y => ({{
+    label: y==='avg'?'평균':y+'년',
+    data: yc[y],
+    borderColor: colors[y]||'#999',
+    backgroundColor: 'transparent',
+    borderDash: dashes[y]||[],
+    borderWidth: y==='{s['this_year']}'?2.5:1.5,
+    pointRadius: y==='{s['this_year']}'?4:3,
+    pointBackgroundColor: colors[y]||'#999',
+    tension: 0.3,
+    fill: false
+  }}));
+  new Chart(document.getElementById('yearly_chart'), {{
+    type: 'line',
+    data: {{ labels: months, datasets: datasets }},
+    options: {{
+      ...baseOpt,
+      plugins: {{
+        legend: {{
+          display: false
+        }},
+        tooltip: {{
+          callbacks: {{
+            label: ctx => ctx.parsed.y ? ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + '원/kg' : ''
+          }}
+        }}
+      }}
+    }}
+  }});
+}})();
 
 function clearQuery(){{
   document.getElementById('startDate').value='';
