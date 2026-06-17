@@ -136,7 +136,7 @@ def collect(today, holidays):
     start_date = datetime(today.year - 3, 1, 1)  # 2023년부터
     needed = []
     cur = start_date
-    while cur <= yesterday:
+    while cur <= today:
         d = cur.strftime('%Y%m%d')
         if is_workday(cur, holidays) and d not in cached:
             needed.append(d)
@@ -207,8 +207,10 @@ def build_stats(data, today, holidays):
     sd = sorted(this_year.keys())
     if not sd: return None
 
+    today_str = today.strftime('%Y%m%d')
     yd_str = yesterday.strftime('%Y%m%d')
-    dd     = yd_str if yd_str in this_year else sd[-1]
+    # 오늘 데이터 있으면 오늘, 없으면 어제
+    dd = today_str if today_str in this_year else (yd_str if yd_str in this_year else sd[-1])
     da     = this_year[dd]
     dt_dd  = datetime.strptime(dd, '%Y%m%d')
 
