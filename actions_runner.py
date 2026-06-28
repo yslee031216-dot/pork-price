@@ -133,13 +133,15 @@ def collect(today, holidays):
     cached    = load_csv()
     print(f'캐시: {len(cached)}건')
 
-    start_date = datetime(today.year - 3, 1, 1)  # 2023년부터
+    start_date  = datetime(today.year - 3, 1, 1)  # 2023년부터
+    recheck_from = today - timedelta(days=7)  # 최근 7일은 항상 재수집(확정치 갱신)
     needed = []
     cur = start_date
     while cur <= today:
         d = cur.strftime('%Y%m%d')
-        if is_workday(cur, holidays) and d not in cached:
-            needed.append(d)
+        if is_workday(cur, holidays):
+            if d not in cached or cur >= recheck_from:
+                needed.append(d)
         cur += timedelta(days=1)
 
     if needed:
@@ -229,7 +231,7 @@ def build_stats(data, today, holidays):
     this_week_mon = today - timedelta(days=today_dow)
     week_prices   = []
     c = this_week_mon
-    while c <= yesterday:
+    while c <= today:
         d = c.strftime('%Y%m%d')
         raw = data.get(d, {})
         fv  = raw.get('farmer') if isinstance(raw, dict) else None
