@@ -135,9 +135,11 @@ def collect(today, holidays):
 
     start_date  = datetime(today.year - 3, 1, 1)  # 2023년부터
     recheck_from = today - timedelta(days=7)  # 최근 7일은 항상 재수집(확정치 갱신)
+    # 오후 6시 이전이면 오늘 데이터 수집 안 함
+    collect_until = today if today.hour >= 18 else today - timedelta(days=1)
     needed = []
     cur = start_date
-    while cur <= today:
+    while cur <= collect_until:
         d = cur.strftime('%Y%m%d')
         if is_workday(cur, holidays):
             if d not in cached or cur >= recheck_from:
