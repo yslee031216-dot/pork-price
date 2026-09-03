@@ -7,6 +7,9 @@ import urllib.request
 import xml.etree.ElementTree as ET
 import json, os, csv, base64
 from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+KST = ZoneInfo('Asia/Seoul')
 
 # GitHub Actions 환경변수에서 키 읽기
 API_KEY      = os.environ.get('API_KEY', '7531ffbca8d17bcd8ab5e68286ae0715ef85da1787095ba0c835c539fa1e06ff')
@@ -48,7 +51,7 @@ def avg_of(lst):
 
 def load_holidays():
     holidays = set(HOLIDAYS_FALLBACK)
-    today = datetime.today()
+    today = datetime.now(KST).replace(tzinfo=None)
     for year in [today.year, today.year - 1]:
         url = (f'http://apis.data.go.kr/B090041/openapi/service/SpcdeInfoService/getRestDeInfo'
                f'?serviceKey={API_KEY}&solYear={year}&numOfRows=50&_type=json')
@@ -135,8 +138,11 @@ def collect(today, holidays):
 
     start_date  = datetime(today.year - 3, 1, 1)  # 2023년부터
     recheck_from = today - timedelta(days=7)  # 최근 7일은 항상 재수집(확정치 갱신)
-    # 오후 6시 이전이면 오늘 데이터 수집 안 함
-    collect_until = today if today.hour >= 18 else today - timedelta(days=1)
+    # 오후 6시 이전이면 오늘 제외, 이후면 오늘 포함
+    if today.hour >= 18:
+        collect_until = today
+    else:
+        collect_until = today - timedelta(days=1)
     needed = []
     cur = start_date
     while cur <= collect_until:
@@ -851,8 +857,8 @@ function clearQuery(){{
 </html>"""
 
 def main():
-    today = datetime.today()
-    print(f'경락단가 자동 업데이트 - {today.strftime("%Y-%m-%d")}')
+    today = datetime.now(KST).replace(tzinfo=None)  # KST 기준 시각으로 변환 (이후 로직은 naive datetime 그대로 사용)
+    print(f'경락단가 자동 업데이트 - {today.strftime("%Y-%m-%d %H:%M")} (KST)')
 
     holidays = load_holidays()
     data     = collect(today, holidays)
